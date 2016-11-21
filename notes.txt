@@ -1,0 +1,11 @@
+Data to collect:
+    EPA Classification
+    Passenger Capacity
+    Number of Doors
+    Engine Type
+    HP & RPM
+    Drivetrain
+    Transmission Type
+    EPA MPG City/Hwy
+    MSRP
+

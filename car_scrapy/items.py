@@ -9,12 +9,12 @@ class CarScrapyItem(scrapy.Item):
     files = scrapy.Field()
 
     # identity stuff
-    name = scrapy.Field()
+    full_name = scrapy.Field()
     trim = scrapy.Field()
     year = scrapy.Field()
 
     # images
-    img_url = scrapy.Field()
+    photos_url = scrapy.Field()
 
     # basic car descriptors
     body_style = scrapy.Field()

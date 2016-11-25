@@ -1,31 +1,31 @@
 """coding: utf-8"""
 
-import scrapy
+from scrapy import Item, Field
 
 
-class CarScrapyItem(scrapy.Item):
+class CarScrapyItem(Item):
     """Model for scraped data"""
-    file_urls = scrapy.Field()
-    files = scrapy.Field()
-
     # identity stuff
-    full_name = scrapy.Field()
-    trim = scrapy.Field()
-    year = scrapy.Field()
+    full_name = Field()
+    full_name_error = Field()
+    trim = Field()
+    year = Field()
+    specs_url = Field()
 
     # images
-    photos_url = scrapy.Field()
+    photos_url = Field()
+    photos_url_error = Field()
 
     # basic car descriptors
-    body_style = scrapy.Field()
-    num_passengers = scrapy.Field()
-    num_doors = scrapy.Field()
-    msrp = scrapy.Field()
+    body_style = Field()
+    num_passengers = Field()
+    num_doors = Field()
+    msrp = Field()
 
     # specs
-    engine_type = scrapy.Field()
-    hp_at_rpm = scrapy.Field()
-    drivetrain = scrapy.Field()
-    transmission_type = scrapy.Field()
-    mpg_city = scrapy.Field()
-    mpg_hwy = scrapy.Field()
+    engine_type = Field()
+    hp_at_rpm = Field()
+    drivetrain = Field()
+    transmission_type = Field()
+    mpg_city = Field()
+    mpg_hwy = Field()

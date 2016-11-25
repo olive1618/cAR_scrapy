@@ -56,12 +56,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = ['car_scrapy.pipeline.MongoDBPipeline', ]
-
-MONGODB_SERVER = "localhost"
-MONGODB_PORT = 27017
-MONGODB_DB = "cAR_data"
-MONGODB_COLLECTION = "textual"
+# ITEM_PIPELINES = {
+#     'car_scrapy.pipelines.JsonWriterPipeline': 1,
+#     }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -83,5 +80,3 @@ MONGODB_COLLECTION = "textual"
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-
-FILES_STORE = "/home/eshouppe/Documents/car_scrapy/output"

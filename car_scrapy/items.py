@@ -5,16 +5,18 @@ import scrapy
 class CarScrapyItem(scrapy.Item):
     """Model for scraped data"""
     # identity stuff
-    full_name = scrapy.Field()
-    full_name_error = scrapy.Field()
+    make = scrapy.Field()
+    make_id = scrapy.Field()
+    model = scrapy.Field()
+    model_id = scrapy.Field()
     trim = scrapy.Field()
+    trim_id = scrapy.Field()
     style = scrapy.Field()
+    style_id = scrapy.Field()
     year = scrapy.Field()
-    specs_url = scrapy.Field()
 
-    # images
-    photos_url = scrapy.Field()
-    photos_url_error = scrapy.Field()
+    # URLs to store
+    specs_url = scrapy.Field()
 
     # basic car descriptors
     body_style = scrapy.Field()

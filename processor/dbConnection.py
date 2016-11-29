@@ -6,12 +6,12 @@ class DBConnection:
     collection = database['cars-collection']
     list_of_items_added = []
 
-    #def __init__(self, name):
-    #    self.name = name
-
     def create_doc(self, doc):
         newest_id = self.collection.insert_one(doc)
         self.list_of_items_added.append(newest_id)
+
+    def create_docs(self, docs):
+        self.collection.insert_many(docs)
 
     def remove_doc(self, doc):
         self.collection.delete_many({"_id":doc['_id']})

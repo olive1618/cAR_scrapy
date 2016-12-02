@@ -14,9 +14,10 @@ class CarScrapyItem(scrapy.Item):
     style = scrapy.Field()
     style_id = scrapy.Field()
     year = scrapy.Field()
+    style_trim = scrapy.Field()
 
     # URLs to store
-    specs_url = scrapy.Field()
+    photos_url = scrapy.Field()
 
     # basic car descriptors
     body_style = scrapy.Field()

@@ -1,17 +1,45 @@
-#1245
-from dbConnection import DBConnection
+import csv
+import re
 import random
+from dbConnection import DBConnection
 
-models = ["BMW", "Audi", "Mercedes", "Ford", "Toyota", "Porsche"]
-makes = ["335i","Fiesta", "S650", "SL55", "TT", "R8", "Corolla", "Boxster", "911", "A6"]
-year = ["2016","2015", "2014", "2013", "2012", "2011", "2010", "2009", "2008"]
+testDb = DBConnection()
+dbc = testDb.finderrors()
+for idx,r in enumerate(dbc):
+    make = r['model']
+    model = r['make']
+    doc = {
+        '_id':r['_id'],
+        'model':model,
+        'make': make,
+        'year': r['year'],
+        'source-id': r['source-id']
+    }
+    testDb.update_one_doc(doc)
 
-carDoc = []
-
-# for i in range(1000):
-#     ranModel = random.choice(models)
-#     ranMakes = random.choice(makes)
-#     ranYear = random.choice(year)
-#     carDoc.append({"model": ranModel, "make":ranMakes, "year": ranYear})
-#testDb = DBConnection()
-#testDb.create_docs(carDoc)
+# with open("vehicles.csv") as fileobject:
+#     r = csv.reader(fileobject, delimiter=',', quotechar='"')
+#     for index,row in enumerate(r):
+#         if index % 10000 == 0:
+#             print(index)
+#         doc = {
+#             "year":row[63],
+#             "make":row[46],
+#             "model":row[47],
+#             "driveTran":row[24],
+#             "transmission":row[57],
+#             "engineCylinders":row[22],
+#             "engineDisplacement":row[23],
+#             "MpgData": row[48],
+#             "cityMpg":row[58],
+#             "cityMpgAvg":row[59],
+#             "highwayMpg":row[60],
+#             "highwayMpgAvg": row[61],
+#             "seats":row[62],
+#             "fuelType":row[30],
+#             "createdOn":row[77],
+#             "source-id":2
+#         }
+#         dupCheck = testDb.find_dups(doc)
+#         if not dupCheck:
+#             testDb.create_doc(doc)

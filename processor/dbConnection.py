@@ -23,8 +23,15 @@ class DBConnection:
             list_of_docs.append(docs)
         return list_of_docs
 
-    def update_one_doc(self, doc):
-        self.collection.update_one({'_id': doc['_id']}, doc, upsert=False)
+    def find_dups(self, doc):
+        results = self.collection.find_one({"year":doc['year'], "model":doc['model'], "make":doc['make']})
+        return results != None
 
+    def update_one_doc(self, doc):
+        self.collection.update_one({'_id': doc['_id']}, {"$set": doc}, upsert=False)
+    
+    def finderrors(self):
+        cursor = self.collection.find({'source-id':1}, modifiers={"$snapshot": True})
+        return cursor
 
 

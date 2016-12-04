@@ -32,3 +32,13 @@ class CarScrapyItem(scrapy.Item):
     transmission = scrapy.Field()
     mpg_city = scrapy.Field()
     mpg_hwy = scrapy.Field()
+
+
+class TestItem(scrapy.Item):
+    """Model for scraped data"""
+    # identity stuff
+    title = scrapy.Field()
+    callstack = scrapy.Field()
+    sedans = scrapy.Field()
+    mazda = scrapy.Field()
+    

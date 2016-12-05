@@ -13,6 +13,12 @@ class CarSpider(Spider):
         sel = Selector(response)
         item = TestItem()
 
+        callstack = [
+            {'url': 'http://www.caranddriver.com/best-sedans', 'callback': self.load_second},
+            {'url': 'http://www.caranddriver.com/mazda/mazda-3', 'callback': self.load_third}
+        ]
+        item['callstack'] = callstack
+
         request = Request(response.url, callback=self.load_first, meta={'item':item})
         yield request
 
@@ -37,12 +43,6 @@ class CarSpider(Spider):
         test_xpath = '//div[@id="vehicle-research"]/header/text()'
         test_response = sel.xpath(test_xpath).extract()[0]
         item['title'] = test_response
-
-        callstack = [
-            {'url': 'http://www.caranddriver.com/best-sedans', 'callback': self.load_second},
-            {'url': 'http://www.caranddriver.com/mazda/mazda-3', 'callback': self.load_third}
-        ]
-        item['callstack'] = callstack
 
         return self.callnext(response)
 

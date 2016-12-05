@@ -7,8 +7,10 @@ class CarScrapyItem(scrapy.Item):
     # identity stuff
     make = scrapy.Field()
     make_id = scrapy.Field()
+    make_url_alias = scrapy.Field()
     model = scrapy.Field()
     model_id = scrapy.Field()
+    model_url_alias = scrapy.Field()
     trim = scrapy.Field()
     trim_id = scrapy.Field()
     style = scrapy.Field()
@@ -18,6 +20,7 @@ class CarScrapyItem(scrapy.Item):
 
     # URLs to store
     photos_url = scrapy.Field()
+    callstack = scrapy.Field()
 
     # basic car descriptors
     body_style = scrapy.Field()

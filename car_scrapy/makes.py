@@ -1,4 +1,4 @@
-"""Hard code the list of Car and Driver's makes'"""
+"""Hard code the list of Car and Driver's makes.  Use to build start_urls"""
 
 
 ALL_MAKES = [('acura', 25), ('alfa-romeo', 52), ('audi', 27), ('bentley', 28),

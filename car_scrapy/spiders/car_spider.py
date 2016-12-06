@@ -3,6 +3,7 @@ Instructions to spider for how to find exact data.
 Scapy uses xpath selector patterns to find the desired elements to scrape.
 """
 import re
+import copy
 import json
 from scrapy.selector import Selector
 from scrapy import Spider
@@ -13,112 +14,76 @@ from car_scrapy.items import CarScrapyItem
 class CarSpider(Spider):
     """Base class for spiders"""
     name = "car-spider"
-    start_urls = ["http://www.caranddriver.com/api/vehicles/models-by-make/18/json?ddIgnore=1",]
+    start_urls = ["http://www.caranddriver.com/api/vehicles/models-by-make/18/json?ddIgnore=1",
+                  "http://www.caranddriver.com/api/vehicles/models-by-make/19/json?ddIgnore=1",]
 
     def parse(self, response):
-        """Parse the make, model, and photos url for a given make/model"""
-        sel = Selector(response)
-        item = CarScrapyItem()
+        """Default function to receive response object from start_urls request"""
+
         json_response = json.loads(response.body_as_unicode())
+        orig_item = CarScrapyItem()
 
-        item['make'] = json_response['vehicles']['make']['name']
-        item['make_id'] = json_response['vehicles']['make']['id']
+        orig_item['make'] = json_response['vehicles']['make']['name']
+        orig_item['make_id'] = json_response['vehicles']['make']['id']
+        orig_item['make_url_alias'] = json_response['vehicles']['make']['url_alias']
 
-        num_models = json_response['vehicles']['counts']['models']
-        models = []
+        num_models = len(json_response['vehicles']['models'])
         for i in range(num_models):
-            model = json_response['vehicles']['models'][i]['name']
-            model_id = json_response['vehicles']['models'][i]['id']
-            model_url_alias = json_response['vehicles']['models'][i]['url_alias']
-            models.append((model, model_id, model_url_alias))
+            item = copy.deepcopy(orig_item)
+            item["model"] = json_response['vehicles']['models'][i]['name']
+            item["model_id"] = json_response['vehicles']['models'][i]['id']
+            item["model_url_alias"] = json_response['vehicles']['models'][i]['url_alias']
 
-        # Get the photos URL
-
-
-        # Use xpath to get model ID and make.  Match with regex.
-        make_model_xpath = '//div[@id="content"]/script/text()'
-        make_model_response = sel.xpath(make_model_xpath).extract()[0]
-        make = re.findall(r'\"(.+?)\"', make_model_response)[1]
-        item['make'] = make
-        model_id = re.findall(r'\"(.+?)\"', make_model_response)[0]
-        item['model_id'] = model_id
-        item['style_trim'] = {}
-
-        # Pass pre-fab url with model ID embedded to callback to parse style info
-        model_url = "http://www.caranddriver.com/api/vehicles/styles-by-model/{}/json?ddIgnore=1"
-        model_url = model_url.format(model_id)
-        request = Request(model_url, callback=self.parse_style, meta={'item':item})
-        yield request
-
-    def parse_photos(self, response):
-        """
-        Get the photos url from the make/model's page.
-        Photos url is not in JSON that I can find.  Using xpath selector instead."""
-        item = response.meta['item']
-
-        photos_url_xpath = '//div[@id="overview--primary-submodel"]/div[2]/div[1]/a/@href'
-        photos_url_response = sel.xpath(photos_url_xpath).extract()[0]
-        re_photos_url = re.compile('http://www\\.caranddriver\\.com/photo-gallery/([\\-\\S/]+)')
-        if re_photos_url.match(photos_url_response):
-            return photos_url_response
-        else:
-            return None
-
-        
-
-    def parse_style(self, response):
-        """Object's keys are tuples of each style's ID, name, and year"""
-        item = response.meta['item']
-        json_response = json.loads(response.body_as_unicode())
-        item['model'] = json_response['vehicles']['styles']['model_url_alias']
-        # 'Groups' contains an array of dicts where each dict is a style
-        num_styles = len(json_response['vehicles']['styles']['groups'])
-
-        for i in range(num_styles):
-            # Create shorthand for this style since lines are otherwise long
-            this_style = json_response['vehicles']['styles']['groups'][i]
-            # Will use style ID in JSON URL
-            style_id = this_style["submodel_group_id"]
-            # Style name is unique key for style
-            style_name = this_style["groupname"]
-            item['style_trim'][style_name] = {}
-            # Pass item to callback to add this style's trim information
-            trim_url = 'http://www.caranddriver.com/api/payments/trims-by-submodel-group'
-            trim_url += '/{}/{}/json?ddIgnore=1'
-            trim_url = trim_url.format(item['model_id'], style_id)
-            request = Request(trim_url, callback=self.parse_trim, meta={'item':item})
+            model_url = 'http://www.caranddriver.com/{}/{}'
+            model_url = model_url.format(item['make_url_alias'], item['model_url_alias'])
+            request = Request(url=model_url, callback=self.load_model, meta={'item':item})
             yield request
 
-    def parse_trim(self, response):
-        """Add trim sub-object to each style object"""
+
+    def load_model(self, response):
+        """Add the photo gallary URL to the item if extracted href matches regex"""
+        item = response.meta['item']
+        sel = Selector(response)
+
+        photos_url_xpath = '//div[@id="overview--primary-submodel"]/div[2]/div[1]/a/@href'
+        photos_url_extract = sel.xpath(photos_url_xpath).extract()[0]
+        re_photos_url = re.compile('http://www\\.caranddriver\\.com/photo-gallery/([\\-\\S/]+)')
+        if re_photos_url.match(photos_url_extract):
+            item['photos_url'] = photos_url_extract
+
+        style_url = 'http://www.caranddriver.com/api/vehicles/styles-by-model/{}/json?ddIgnore=1'
+        style_url = style_url.format(item['model_id'])
+        request = Request(url=style_url, callback=self.load_style, meta={'item':item})
+        yield request
+
+
+    def load_style(self, response):
+        """Get style info"""
         item = response.meta['item']
         json_response = json.loads(response.body_as_unicode())
 
-        # Use style name to pull particular dictionary
-        style_name = json_response["alltrims"][0]["submodel_group_name"]
-        this_style = item['style_trim'][style_name]  # this is a {}
+        num_styles = len(json_response['vehicles']['styles']['groups'])
+        for i in range(num_styles):
+            item_style = copy.deepcopy(item)
+            this_style = json_response['vehicles']['styles']['groups'][i]
+            item_style["style"] = this_style['groupname']
+            item_style["style_id"] = this_style['submodel_group_id']
 
-        # Add style level ID and year
-        style_id = json_response["alltrims"][0]["submodel_group_id"]
-        this_style['style_id'] = style_id
-        style_year = json_response["alltrims"][0]["year"]
-        this_style['year'] = style_year
+            trim_url = 'http://www.caranddriver.com/api/payments/trims-by-sub'
+            trim_url += 'model-group/{}/{}/json?ddIgnore=1'
+            trim_url = trim_url.format(item_style['model_id'], item_style['style_id'])
+            request = Request(url=trim_url, callback=self.load_trim, meta={'item':item_style})
+            yield request
 
-        num_trims = len(json_response["alltrims"])
+
+    def load_trim(self, response):
+        """Get trim info"""
+        item = response.meta['item']
+        json_response = json.loads(response.body_as_unicode())
+
+        num_trims = len(json_response['alltrims'])
         for i in range(num_trims):
-            # Use trim name as unique key for this trim's info'
-            trim_name = json_response["alltrims"][i]["friendly_name"]
-            this_style[trim_name] = {}
-            this_style[trim_name]['trim_id'] = json_response["alltrims"][i]["id"]
-            this_style[trim_name]['msrp'] = json_response["alltrims"][i]["base_msrp"]
-            this_trim = json_response['alltrims'][i]['chrome_data']
-            this_style[trim_name]['num_passengers'] = this_trim['Passenger Capacity']['value']
-            this_style[trim_name]['body_style'] = this_trim['EPA Classification']['value']
-            this_style[trim_name]['mpg_hwy'] = this_trim['EPA Fuel Economy Est - Hwy']['value']
-            this_style[trim_name]['mpg_city'] = this_trim['EPA Fuel Economy Est - City']['value']
-            this_style[trim_name]['drivetrain'] = this_trim['Drivetrain']['value']
-            this_style[trim_name]['engine_type'] = this_trim['Engine Type']['value']
-            this_style[trim_name]['hp_at_rpm'] = this_trim['SAE Net Horsepower @ RPM']['value']
-            this_style[trim_name]['transmission'] = this_trim['Trans Type']['value']
-
-        yield item
+            item_trim = copy.deepcopy(item)
+            item_trim["trim"] = json_response['alltrims'][i]["friendly_name"]
+            item_trim["trim_id"] = json_response['alltrims'][i]["id"]
+            yield item_trim

@@ -12,3 +12,10 @@ ALL_MAKES = [('acura', 25), ('alfa-romeo', 52), ('audi', 27), ('bentley', 28),
              ('nissan', 8), ('pagani', 98), ('porsche', 11), ('ram', 162), ('rolls-royce', 12),
              ('scion', 24), ('smart', 53), ('spyker', 59), ('subaru', 15), ('tesla', 54),
              ('toyota', 17), ('volkswagen', 18), ('volvo', 19)]
+
+
+ALL_MAKES_URLS = []
+
+for make in ALL_MAKES:
+    http_format = 'http://www.caranddriver.com/api/vehicles/models-by-make/{}/json?ddIgnore=1'
+    ALL_MAKES_URLS.append(http_format.format(make[-1]))

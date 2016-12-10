@@ -16,11 +16,11 @@ class CarScrapyItem(scrapy.Item):
     style = scrapy.Field()
     style_id = scrapy.Field()
     year = scrapy.Field()
-    style_trim = scrapy.Field()
 
     # URLs to store
-    photos_url = scrapy.Field()
-    callstack = scrapy.Field()
+    imgs_home_url = scrapy.Field()
+    imgs_ng_callback = scrapy.Field()
+    imgs_indv_url = scrapy.Field()
 
     # basic car descriptors
     body_style = scrapy.Field()
@@ -35,6 +35,12 @@ class CarScrapyItem(scrapy.Item):
     transmission = scrapy.Field()
     mpg_city = scrapy.Field()
     mpg_hwy = scrapy.Field()
+
+    #flag field to add imgs to first object. delete on yield.
+    first = scrapy.Field()
+
+    #flag field to use when processing lambda
+    processed = scrapy.Field()
 
 
 class TestItem(scrapy.Item):

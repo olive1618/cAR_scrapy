@@ -1,6 +1,6 @@
-""" -*- coding: utf-8 -*-
-Scrapy settings for car_scrapy project
-"""
+"""Scrapy settings for car_scrapy project"""
+import logging
+
 
 BOT_NAME = 'car_scrapy'
 SPIDER_MODULES = ['car_scrapy.spiders']
@@ -56,9 +56,18 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#     'car_scrapy.pipelines.JsonWriterPipeline': 1,
-#     }
+ITEM_PIPELINES = {
+    'car_scrapy.pipelines.MongoPipeline': 1,
+    }
+
+MONGODB_HOST = '10.0.0.37'
+MONGODB_PORT = 27017
+MONGODB_DATABASE = 'cars-database'
+MONGODB_COLLECTION = 'car_and_driver'
+
+# Python Logging settings
+LOG_FILE = 'car_spider.log'
+LOG_LEVEL = logging.DEBUG
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

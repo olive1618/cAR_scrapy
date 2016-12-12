@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import gridfs
 
 class DBConnection:
     dbClient = MongoClient('mongodb://localhost:27017/')
@@ -28,6 +29,11 @@ class DBConnection:
         '''Inserts Exactly One Document'''
         self.collection.save(doc)
 
+    def createImgDoc(self,doc):
+        db = self.dbClient.gridfs_example
+        fs = gridfs.GridFS(db)
+        a = fs.put(b"hello world")
+
     def create_docs(self, docs):
         '''Takes an array of doc objects'''
         self.collection.insert_many(docs)
@@ -45,7 +51,7 @@ class DBConnection:
 
     def docExists(self, doc):
         '''Checks if a document exists by a unique combination of year, model, and make props. Returns a boolean.'''
-        results = self.collection.find_one({"year":doc['year'], "model":doc['model'], "make":doc['make']})
+        results = self.collection.find_one({"year":doc['year'], "model":doc['model'], "make":doc['make'], "image-original-url":doc['image-original-url']})
         return results != None
 
     def update_one_doc(self, doc):

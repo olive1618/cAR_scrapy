@@ -1,4 +1,6 @@
 from PhotosProcessor import PhotosProcessor
+from dbConnection import DBConnection
+
 
 processor = PhotosProcessor()
 processor.ProcessAllPhotos(True)

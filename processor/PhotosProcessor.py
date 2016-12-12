@@ -34,28 +34,37 @@ class PhotosProcessor:
                 year = carMetaDoc['year']
                 make = carMetaDoc['make_url_alias']
                 model = carMetaDoc['model_url_alias']
-
                 arrayOfImgs = carMetaDoc.get("imgs_indv_url",None)
                 if arrayOfImgs is not None:
                     for img in carMetaDoc['imgs_indv_url']:
                         for k in img.keys():
-                            doc = {
-                                "year":year,
+                            imageSize = k
+                            imageUrl = img[k]
+                            dupCheck = PhotoMetaDataDB.docExists({
                                 "make":make,
+                                "year":year,
                                 "model":model,
-                                "image-size":'',
-                                "image-name":'',
-                                'image-original-url':'',
-                                'collection-time':datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            }
-                            rndName = self.GenerateRandomTag(str(img[k]))
-                            doc['image-size'] = k
-                            doc['image-original-url'] = img[k]
-                            doc['image-name'] = rndName + '.jpg'
-                            self.ProcessPhotoFromUrlToDisk(img[k], rndName)
-                            PhotoMetaDataDB.create_doc(doc)
-                            numScrapped += 1
-                            print(numScrapped)
+                                "image-original-url":imageUrl
+                            })
+                            print(dupCheck)
+                            if not dupCheck:                            
+                                rndName = self.GenerateRandomTag(str(img[k]))
+                                doc = {
+                                    "year":year,
+                                    "make":make,
+                                    "model":model,
+                                    "image-size":imageSize,
+                                    "image-name": rndName + '.jpg',
+                                    'image-original-url':imageUrl,
+                                    "collection-source":"Car-And-Driver",
+                                    'collection-time':datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                }
+                                self.ProcessPhotoFromUrlToDisk(imageUrl, rndName)
+                                PhotoMetaDataDB.create_doc(doc)
+                                numScrapped += 1
+                                print(numScrapped)
+                                print(idx)
+                                print('***')
         else:
             #TODO build the s3 uploader
             pass

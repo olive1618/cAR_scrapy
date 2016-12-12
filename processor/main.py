@@ -1,21 +1,29 @@
-import csv
-import re
-import random
-from dbConnection import DBConnection
+from PhotosProcessor import PhotosProcessor
 
-testDb = DBConnection()
-dbc = testDb.finderrors()
-for idx,r in enumerate(dbc):
-    make = r['model']
-    model = r['make']
-    doc = {
-        '_id':r['_id'],
-        'model':model,
-        'make': make,
-        'year': r['year'],
-        'source-id': r['source-id']
-    }
-    testDb.update_one_doc(doc)
+processor = PhotosProcessor()
+processor.ProcessAllPhotos(True)
+#processor.ProcessPhotoFromUrlToDisk('http://blog.caranddriver.com/wp-content/uploads/2016/11/2017-Volkswagen-Golf-R-101-876x535.jpg', processor.GenerateRandomTag('test'))
+
+# import csv
+# import re
+# import random
+# from dbConnection import DBConnection
+
+# testDb = DBConnection()
+# dbc = testDb.finderrors()
+# for idx,r in enumerate(dbc):
+#     make = r['model']
+#     model = r['make']
+#     doc = {
+#         '_id':r['_id'],
+#         'model':model,
+#         'make': make,
+#         'year': r['year'],
+#         'source-id': r['source-id']
+#     }
+#     testDb.update_one_doc(doc)
+
+
 
 # with open("vehicles.csv") as fileobject:
 #     r = csv.reader(fileobject, delimiter=',', quotechar='"')

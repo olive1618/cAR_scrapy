@@ -3,7 +3,9 @@ from dbConnection import DBConnection
 
 
 processor = PhotosProcessor()
-processor.ProcessAllPhotos(True)
+processor.GetAllPhotosFromDiskAndUploadToGridFs()
+
+#processor.ProcessAllPhotos(True)
 #processor.ProcessPhotoFromUrlToDisk('http://blog.caranddriver.com/wp-content/uploads/2016/11/2017-Volkswagen-Golf-R-101-876x535.jpg', processor.GenerateRandomTag('test'))
 
 # import csv

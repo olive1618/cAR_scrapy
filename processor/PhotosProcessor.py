@@ -98,6 +98,20 @@ class PhotosProcessor:
             fileUri = "photos/" + file
             s3.upload_file(fileUri, "car-raw-photos", str(file))
 
+    def GetAllPhotosFromDiskAndUploadToGridFs(self):
+        '''Uploads photos from a photos folder to GridFS'''
+        #Get all jpgs from a folder and upload them::
+        #***********************
+        PhotoDB = DBConnection()
+        PhotoMetaDataDB = DBConnection(collection=self.collection)
+
+        files = [f for f in os.listdir('photos') if re.match('[\w]+.*\.jpg', f)]
+        for idx,file in enumerate(files):
+            print(file)
+            with open('photos/' + file, 'rb') as f:
+                id = PhotoDB.createImgDoc(f, file)
+                PhotoMetaDataDB.update_photo_meta_by_image_name(file,id)
+
     def GenerateRandomTag(self, photoName):
         def uuidCustom():
             seed = random.getrandbits(32)
